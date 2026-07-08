@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { type Cache } from 'cache-manager';
 
 
 import { Reservation, ReservationStatus } from './entities/reservation.entity';
