@@ -1,0 +1,78 @@
+{
+  "info": {
+    "_postman_id": "b3e34b7f-31a4-4a4b-8e50-9c1234567890",
+    "name": "Ejercicio 1 - Vuelos con Caché Redis",
+    "description": "Pruebas para verificar la integración de NestJS con Redis",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Buscar Vuelos (Cache MISS - Base de Datos)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/flights?origin=SAL&destination=MIA&date=2026-07-10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "flights"
+          ],
+          "query": [
+            {
+              "key": "origin",
+              "value": "SAL"
+            },
+            {
+              "key": "destination",
+              "value": "MIA"
+            },
+            {
+              "key": "date",
+              "value": "2026-07-10"
+            }
+          ]
+        },
+        "description": "Primera petición. Debería tardar un poco más y registrar un [CACHE MISS] en la terminal de NestJS."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Buscar Vuelos (Cache HIT - Redis)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/flights?origin=SAL&destination=MIA&date=2026-07-10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "flights"
+          ],
+          "query": [
+            {
+              "key": "origin",
+              "value": "SAL"
+            },
+            {
+              "key": "destination",
+              "value": "MIA"
+            },
+            {
+              "key": "date",
+              "value": "2026-07-10"
+            }
+          ]
+        },
+        "description": "Segunda petición. Debería ser muy rápida y no registrar llamadas a la BD. Retorna desde Redis."
+      },
+      "response": []
+    }
+  ]
+}

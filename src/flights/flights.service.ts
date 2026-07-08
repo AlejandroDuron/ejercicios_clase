@@ -6,7 +6,6 @@ import type { Cache } from 'cache-manager';
 import { Flight } from './entities/flight.entity';
 import { CacheKeys, TTL } from '../common/cache-keys';
 
-
 @Injectable()
 export class FlightsService {
   constructor(
@@ -20,7 +19,7 @@ export class FlightsService {
     const key = CacheKeys.flightSearch(origin, destination, date);
 
     // 1. Buscar en caché
-    const cached = await this.cache.get(key);
+    const cached = await this.cache.get<Flight[]>(key);
     if (cached) {
       console.log(`[CACHE HIT] ${key}`);
       return cached;
@@ -42,8 +41,10 @@ export class FlightsService {
       })
       .getMany();
 
-    // 3. Guardar en caché con TTL de 60s
-    await this.cache.set(key, flights, TTL.FLIGHT_SEARCH);
+    // 3. Guardar en caché — TTL en milisegundos para cache-manager v5+
+    await this.cache.set(key, flights, TTL.FLIGHT_SEARCH * 1000);
+
+    console.log(`[CACHE SET] ${key} por ${TTL.FLIGHT_SEARCH}s`);
 
     return flights;
   }
