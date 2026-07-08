@@ -57,6 +57,18 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Ejercicio 2 - Cache de mapa de asientos
+
+- Endpoint: `GET /flights/:id/seats`
+- Llave de cache: `flights:{id}:seats`
+- TTL configurado: 30 segundos
+
+### Escenario de concurrencia e invalidacion
+
+Si dos usuarios consultan el mapa al mismo tiempo y uno reserva un asiento justo despues, puede ocurrir una lectura obsoleta temporal (stale read): la BD ya refleja el nuevo estado del asiento, pero la cache aun conserva el estado anterior durante su TTL.
+
+La invalidacion correcta para minimizar esa ventana es eliminar `flights:{id}:seats` inmediatamente despues de que una mutacion de asientos (reserva/cancelacion/cambio) termine con exito en la base de datos (despues del commit).
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

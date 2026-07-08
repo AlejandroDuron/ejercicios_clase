@@ -10,4 +10,3 @@ export class ReservationsController {
     return this.reservationsService.confirmReservation(id);
   }
 }
-

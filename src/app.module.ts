@@ -38,11 +38,9 @@ import { Passenger } from './reservations/entities/passenger.entity';
         const { createKeyv } = await import('@keyv/redis');
         const host = config.get<string>('REDIS_HOST') ?? 'localhost';
         const port = config.get<string>('REDIS_PORT') ?? '6379';
-        
+
         return {
-          stores: [
-            createKeyv(`redis://${host}:${port}`)
-          ],
+          stores: [createKeyv(`redis://${host}:${port}`)],
         };
       },
     }),

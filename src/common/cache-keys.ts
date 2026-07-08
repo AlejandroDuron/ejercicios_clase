@@ -14,7 +14,7 @@ export const CacheKeys = {
 
 export const TTL = {
   FLIGHT_SEARCH: 60000,
-  FLIGHT_SEATS: 30000,
+  FLIGHT_SEATS: 30,
   RESERVATION: 600000,
   SEAT_HOLD: 900000,
 };

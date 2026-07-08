@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { Flight } from './entities/flight.entity';
+import { Seat } from './entities/seat.entity';
 import { CacheKeys, TTL } from '../common/cache-keys';
 
 @Injectable()
@@ -11,9 +12,24 @@ export class FlightsService {
   constructor(
     @InjectRepository(Flight)
     private flightRepo: Repository<Flight>,
+    @InjectRepository(Seat)
+    private seatRepo: Repository<Seat>,
     @Inject(CACHE_MANAGER)
     private cache: Cache,
   ) {}
+
+  findFlightById(flightId: string) {
+    // Validacion rapida de existencia para responder 404 desde el controlador.
+    return this.flightRepo.findOne({ where: { id: flightId } });
+  }
+
+  getSeatsByFlightId(flightId: string) {
+    // Se ordena por numero de asiento para una respuesta estable del mapa.
+    return this.seatRepo.find({
+      where: { flight_id: flightId },
+      order: { seat_number: 'ASC' },
+    });
+  }
 
   async searchFlights(origin: string, destination: string, date: string) {
     const key = CacheKeys.flightSearch(origin, destination, date);
@@ -41,7 +57,7 @@ export class FlightsService {
       })
       .getMany();
 
-    // 3. Guardar en caché — TTL en milisegundos para cache-manager v5+
+    // TTL definido en segundos y convertido a ms para el adapter actual.
     await this.cache.set(key, flights, TTL.FLIGHT_SEARCH * 1000);
 
     console.log(`[CACHE SET] ${key} por ${TTL.FLIGHT_SEARCH}s`);

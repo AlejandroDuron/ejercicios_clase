@@ -1,6 +1,10 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, JoinColumn, CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Passenger } from './passenger.entity';
 
@@ -24,7 +28,11 @@ export class Reservation {
   @Column()
   passenger_id: string;
 
-  @Column({ type: 'enum', enum: ReservationStatus, default: ReservationStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: ReservationStatus,
+    default: ReservationStatus.PENDING,
+  })
   status: ReservationStatus;
 
   @Column({ nullable: true })

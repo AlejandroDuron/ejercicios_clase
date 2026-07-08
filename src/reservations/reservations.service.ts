@@ -1,14 +1,13 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  BadRequestException, 
-  Inject 
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { type Cache } from 'cache-manager';
-
 
 import { Reservation, ReservationStatus } from './entities/reservation.entity';
 import { CacheKeys, TTL } from '../common/cache-keys';
@@ -18,19 +17,22 @@ export class ReservationsService {
   constructor(
     @InjectRepository(Reservation)
     private readonly reservationRepo: Repository<Reservation>,
-    
+
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
   ) {}
 
   async confirmReservation(id: string) {
+    // Primero se valida contra BD; la cache no es fuente de verdad.
     const reservation = await this.reservationRepo.findOne({ where: { id } });
 
     if (!reservation) {
       throw new NotFoundException('La reservación no existe');
     }
     if (reservation.status !== ReservationStatus.PENDING) {
-      throw new BadRequestException("Solo las reservaciones en estado 'pending' pueden ser confirmadas");
+      throw new BadRequestException(
+        "Solo las reservaciones en estado 'pending' pueden ser confirmadas",
+      );
     }
 
     reservation.status = ReservationStatus.CONFIRMED;
@@ -38,6 +40,7 @@ export class ReservationsService {
     const updatedReservation = await this.reservationRepo.save(reservation);
     const cacheKey = CacheKeys.reservation(id);
 
+    // Se refresca la cache de la reservacion con el estado confirmado.
     await this.cacheManager.set(cacheKey, updatedReservation, TTL.RESERVATION);
 
     return updatedReservation;
