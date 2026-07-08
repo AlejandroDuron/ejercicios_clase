@@ -30,7 +30,7 @@ export class ReservationsService {
       throw new NotFoundException('La reservación no existe');
     }
     if (reservation.status !== ReservationStatus.PENDING) {
-      throw new BadRequestException('Solo las reservaciones en estado "pending" pueden ser confirmadas');
+      throw new BadRequestException("Solo las reservaciones en estado 'pending' pueden ser confirmadas");
     }
 
     reservation.status = ReservationStatus.CONFIRMED;
