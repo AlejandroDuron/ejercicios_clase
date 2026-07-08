@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -29,6 +29,29 @@ export class FlightsService {
       where: { flight_id: flightId },
       order: { seat_number: 'ASC' },
     });
+  }
+
+  async getSeatMap(flightId: string): Promise<Seat[]> {
+    // La llave incluye el id para no mezclar asientos entre vuelos.
+    const cacheKey = CacheKeys.flightSeats(flightId);
+
+    // Cache-aside: si hay hit en Redis, no se consulta la BD.
+    const cachedSeats = await this.cache.get<Seat[]>(cacheKey);
+    if (cachedSeats) {
+      return cachedSeats;
+    }
+
+    const flight = await this.findFlightById(flightId);
+    if (!flight) {
+      throw new NotFoundException(`Vuelo con id ${flightId} no encontrado`);
+    }
+
+    const seats = await this.getSeatsByFlightId(flightId);
+
+    // Se guarda 30s en cache (constante en segundos convertida a ms al set).
+    await this.cache.set(cacheKey, seats, TTL.FLIGHT_SEATS * 1000);
+
+    return seats;
   }
 
   async searchFlights(origin: string, destination: string, date: string) {
